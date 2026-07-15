@@ -1,0 +1,21 @@
+# Secrets — never commit (.env.example is the template)
+.env
+
+# Data pipeline output (~1.8 GB: sqlite DB, page images, thumbnails, logs, exports)
+data/
+
+# Python
+__pycache__/
+*.pyc
+web/backend/.venv/
+
+# Node / frontend build
+web/frontend/node_modules/
+web/frontend/dist/
+
+# Misc
+nohup.out
+*.log
+
+# Claude Code local settings
+.claude/settings.local.json

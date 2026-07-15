@@ -1,0 +1,9 @@
+https://issuu.com/thelawrencevilleschool
+https://www.scribd.com/user/555521403/The-Lawrentian/uploads?_gl=1*1m86pzy*_up*MQ..*_ga*MTk3NTQ3ODQxOS4xNzgwNTMyMjUz*_ga_Z4ZC50DED6*czE3ODA1MzIyNTIkbzEkZzAkdDE3ODA1MzIyNTIkajYwJGwwJGgw*_ga_8KZ8BV0P5W*czE3ODA1MzIyNTIkbzEkZzAkdDE3ODA1MzIyNTIkajYwJGwwJGgw
+
+# Notes
+# - Issuu (above) is the scraped source: 93 publications of The Lawrentian alumni magazine
+#   and related Lawrenceville School documents. This is the corpus used to build the database.
+# - Scribd (above) is the student newspaper / yearbook account. It is bot-walled and was
+#   intentionally NOT scraped in this pass (per project decision); the link is preserved here
+#   so it can be added later via a headless-browser route.
