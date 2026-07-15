@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { api, type PersonCard as Card, type Stats, type Theme } from '../api/client'
 import { PersonCard } from '../components/PersonCard'
 
@@ -25,7 +25,10 @@ export default function Home() {
     <div className="container">
       <div className="hero">
         <h1>Find your people.</h1>
-        <p>Search {stats ? stats.people.toLocaleString() : '15,000+'} members of the Lawrenceville community by what they actually do.</p>
+        <p>
+          Search {stats ? stats.people.toLocaleString() : '15,000+'} members of the Lawrenceville community by what they actually do.
+          {' '}<Link to="/about" className="hero-about">New here? See how this site was built →</Link>
+        </p>
         <form className="bigsearch" onSubmit={go}>
           <input value={q} onChange={e => setQ(e.target.value)} autoFocus
             placeholder='Try "documentary filmmaker" or "climate policy in DC"' />
