@@ -142,7 +142,7 @@ def export_csv(q: str = "", mode: str = "keyword", role: str = "", year: str = "
     w.writeheader()
     for r in rows:
         w.writerow(r)
-    return Response(content=buf.getvalue(), media_type="text/csv",
+    return Response(content="\ufeff" + buf.getvalue(), media_type="text/csv; charset=utf-8",
                     headers={"Content-Disposition": "attachment; filename=bigredalumni.csv"})
 
 
@@ -259,7 +259,7 @@ def _group_csv(conn, user: str, g: dict) -> str:
     buf = io.StringIO()
     w = csv.writer(buf)
     filt = g["filters"]
-    years = f"{filt.get('year_min') or 'any'}–{filt.get('year_max') or 'any'}"
+    years = f"{filt.get('year_min') or 'any'} - {filt.get('year_max') or 'any'}"
     w.writerow(["Group", g["title"]])
     w.writerow(["Search brief", g["prompt"]])
     w.writerow(["Fit criterion", g["criterion"]])
@@ -276,7 +276,8 @@ def _group_csv(conn, user: str, g: dict) -> str:
     dw.writeheader()
     for r in rows:
         dw.writerow(r)
-    return buf.getvalue()
+    # UTF-8 BOM so Excel on Windows decodes names/quotes correctly
+    return "\ufeff" + buf.getvalue()
 
 
 @app.get("/api/assistant/groups/{gid}/export.csv")
