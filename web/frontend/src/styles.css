@@ -233,6 +233,7 @@ table.dirtable a { color: var(--red-dark); font-weight: 600; }
 .ai-del { position: absolute; top: 6px; right: 6px; border: 0; background: transparent; color: #bbb; }
 .ai-del:hover { color: var(--red); }
 .asst-main { min-width: 0; }
+.rail-export { display: block; text-align: center; margin-top: 12px; font-size: 13px; padding: 8px 12px; }
 .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;
   text-transform: capitalize; }
 .badge.draft { background: #eee; color: #666; }

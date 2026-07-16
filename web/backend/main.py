@@ -1,6 +1,8 @@
 """BigRedAlumni API + static frontend (FastAPI)."""
 import csv
 import io
+import re
+import zipfile
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
@@ -251,16 +253,11 @@ def delete_group(gid: int, user: str = Depends(require_user)):
     return {"ok": assistant.delete_group(db.connect(), user, gid)}
 
 
-@app.get("/api/assistant/groups/{gid}/export.csv")
-def export_group(gid: int, user: str = Depends(require_user)):
-    conn = db.connect()
-    g = assistant.group_dict(conn, gid, user)
-    if not g:
-        raise HTTPException(404, "not found")
-    rows = assistant.export_rows(conn, user, gid)
+def _group_csv(conn, user: str, g: dict) -> str:
+    """CSV for one assistant group: a header block describing the search, then match rows."""
+    rows = assistant.export_rows(conn, user, g["id"])
     buf = io.StringIO()
     w = csv.writer(buf)
-    # header block describing the search this export came from
     filt = g["filters"]
     years = f"{filt.get('year_min') or 'any'}–{filt.get('year_max') or 'any'}"
     w.writerow(["Group", g["title"]])
@@ -279,8 +276,36 @@ def export_group(gid: int, user: str = Depends(require_user)):
     dw.writeheader()
     for r in rows:
         dw.writerow(r)
-    return Response(content=buf.getvalue(), media_type="text/csv",
+    return buf.getvalue()
+
+
+@app.get("/api/assistant/groups/{gid}/export.csv")
+def export_group(gid: int, user: str = Depends(require_user)):
+    conn = db.connect()
+    g = assistant.group_dict(conn, gid, user)
+    if not g:
+        raise HTTPException(404, "not found")
+    return Response(content=_group_csv(conn, user, g), media_type="text/csv",
                     headers={"Content-Disposition": f"attachment; filename=group-{gid}.csv"})
+
+
+@app.get("/api/assistant/export.zip")
+def export_all_groups(user: str = Depends(require_user)):
+    """All of the user's past group searches, one CSV per group, zipped (uncompressed names visible, no password)."""
+    conn = db.connect()
+    groups = assistant.list_groups(conn, user)
+    if not groups:
+        raise HTTPException(404, "no groups to export")
+    zbuf = io.BytesIO()
+    with zipfile.ZipFile(zbuf, "w", zipfile.ZIP_DEFLATED) as zf:
+        for lg in groups:
+            g = assistant.group_dict(conn, lg["id"], user)
+            if not g:
+                continue
+            slug = re.sub(r"[^a-z0-9]+", "-", g["title"].lower()).strip("-")[:60] or "group"
+            zf.writestr(f"group-{g['id']}-{slug}.csv", _group_csv(conn, user, g))
+    return Response(content=zbuf.getvalue(), media_type="application/zip",
+                    headers={"Content-Disposition": "attachment; filename=assistant-groups.zip"})
 
 
 # ---------------- images (public bytes; the magazines are public) ----------------

@@ -259,6 +259,11 @@ export default function Assistant() {
             ))}
             {groups.length === 0 && <div className="hint" style={{ padding: '10px 4px' }}>No groups yet.</div>}
           </div>
+          {groups.length > 0 && (
+            <a className="btn outline sm rail-export" href="/api/assistant/export.zip" download>
+              ⬇ All searches (ZIP of CSVs)
+            </a>
+          )}
         </aside>
 
         <main className="asst-main">
