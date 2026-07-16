@@ -285,7 +285,9 @@ if settings.DIST.exists():
             raise HTTPException(404)
         index = settings.DIST / "index.html"
         if index.exists():
-            return FileResponse(index)
+            # always revalidate the shell so old tabs pick up new hashed bundles
+            return FileResponse(index, media_type="text/html",
+                                headers={"Cache-Control": "no-cache"})
         raise HTTPException(404)
 else:
     @app.get("/")
