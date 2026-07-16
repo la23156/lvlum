@@ -253,16 +253,34 @@ def delete_group(gid: int, user: str = Depends(require_user)):
 
 @app.get("/api/assistant/groups/{gid}/export.csv")
 def export_group(gid: int, user: str = Depends(require_user)):
-    rows = assistant.export_rows(db.connect(), user, gid)
+    conn = db.connect()
+    g = assistant.group_dict(conn, gid, user)
+    if not g:
+        raise HTTPException(404, "not found")
+    rows = assistant.export_rows(conn, user, gid)
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    # header block describing the search this export came from
+    filt = g["filters"]
+    years = f"{filt.get('year_min') or 'any'}–{filt.get('year_max') or 'any'}"
+    w.writerow(["Group", g["title"]])
+    w.writerow(["Search brief", g["prompt"]])
+    w.writerow(["Fit criterion", g["criterion"]])
+    w.writerow(["Class years", years])
+    w.writerow(["Roles", ", ".join(g["effective_roles"]) or "all"])
+    w.writerow(["Model", g["model"]])
+    w.writerow(["Candidates judged", f"{g['judged']} of {g['total']}"])
+    w.writerow(["Matches", g["matched"]])
+    w.writerow(["Run date", g["updated_at"]])
+    w.writerow([])
     cols = ["first_name", "last_name", "class_year", "role", "fit_reasoning", "confidence",
             "interests", "source_url", "profile_path"]
-    buf = io.StringIO()
-    w = csv.DictWriter(buf, fieldnames=cols, extrasaction="ignore")
-    w.writeheader()
+    dw = csv.DictWriter(buf, fieldnames=cols, extrasaction="ignore")
+    dw.writeheader()
     for r in rows:
-        w.writerow(r)
+        dw.writerow(r)
     return Response(content=buf.getvalue(), media_type="text/csv",
-                    headers={"Content-Disposition": "attachment; filename=group.csv"})
+                    headers={"Content-Disposition": f"attachment; filename=group-{gid}.csv"})
 
 
 # ---------------- images (public bytes; the magazines are public) ----------------
