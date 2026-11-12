@@ -1,5 +1,5 @@
 // Capture real app screenshots for the /about splash page.
-// Usage: BASE=http://localhost:8000 PHONE=+1555... CODE=000000 node scripts/capture-about.mjs
+// Usage: BASE=http://localhost:8000 PHONE=<an allowed phone> CODE=000000 node scripts/capture-about.mjs
 // Requires the server running with DEV_AUTH_BYPASS=1.
 import { chromium } from 'playwright'
 import { mkdirSync } from 'node:fs'
@@ -7,7 +7,8 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const BASE = process.env.BASE ?? 'http://localhost:8000'
-const PHONE = process.env.PHONE ?? ''
+const PHONE = process.env.PHONE
+if (!PHONE) throw new Error('set PHONE to a number on the login allowlist (ADMIN_PHONE in .env)')
 const CODE = process.env.CODE ?? '000000'
 const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'assets', 'about')
 mkdirSync(OUT, { recursive: true })

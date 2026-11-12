@@ -19,7 +19,12 @@ build_summaries.py  (optional) LLM-written one-line bio per person
 search.py           keyword (full-text) + semantic + per-person profile lookup
 export_csv.py       dump tables to data/exports/*.csv
 run_all.sh          runs scrape -> extract -> embed -> export
+resolve_people.py   entity resolution: merge name variants into the `profiles*` tables
+web/                BigRedAlumni — FastAPI + React directory site on top of the DB
 ```
+
+The web app (search, directory, profiles, shuffle, favorites, AI group-builder assistant) is
+documented in [`web/README.md`](web/README.md).
 
 The goal is a searchable directory of the whole Lawrenceville community — students, alumni,
 faculty, and parents — so you can ask "who works on X" by keyword or by meaning.
@@ -36,7 +41,8 @@ The OpenAI API is called directly over HTTPS.
 
 ## Setup
 
-Requires Python 3.11+ and an `OPENAI_API_KEY` in `.env` (already present).
+Requires Python 3.11+ and an `OPENAI_API_KEY` in `.env` (copy [`.env.example`](.env.example) to
+`.env` and fill it in; `.env` and `data/` are git-ignored).
 The extractor uses **gpt-5** by default (the best available vision model); override with
 `EXTRACT_MODEL=gpt-4.1` etc.
 
@@ -97,7 +103,8 @@ data/exports/*.csv                     documents, people, mentions, people_with_
 People are consolidated by normalized name + class year; a no-year mention is folded into a
 person only when that name is reliably tied to one year (≥2 mentions and ≥⅓ of its mentions),
 so a frequently-named staffer isn't given a stray class year. Name-variant merging
-(e.g. "Steve Murray" vs "Stephen S. Murray '54") is left for a future entity-resolution pass.
+(e.g. "Steve Murray" vs "Stephen S. Murray '54") is done by `resolve_people.py`, which writes the
+`profiles`, `profile_aliases`, `profiles_fts`, and `profile_embeddings` tables the web app reads.
 
 ### Example queries
 ```sql

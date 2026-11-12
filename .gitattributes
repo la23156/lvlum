@@ -1,0 +1,4 @@
+# Keep LF everywhere: the scripts run under bash/WSL even when checked out on Windows
+* text=auto eol=lf
+*.jpg binary
+*.png binary
